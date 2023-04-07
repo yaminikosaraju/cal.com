@@ -87,6 +87,31 @@ export default function ZapierSetup(props: IZapierSetupProps) {
     return <div className="bg-emphasis absolute z-50 flex h-screen w-full items-center" />;
   }
 
+  const CopyApiKey = ({ apiKey }: { apiKey: string }) => {
+    return (
+      <>
+        <div className="my-2 mt-3 flex-wrap sm:flex sm:flex-nowrap">
+          <code className="bg-subtle h-full w-full whitespace-pre-wrap rounded-md py-[6px] pl-2 pr-2 sm:rounded-r-none sm:pr-5">
+            {apiKey}
+          </code>
+          <Tooltip side="top" content={t("copy_to_clipboard")}>
+            <Button
+              onClick={() => {
+                navigator.clipboard.writeText(apiKey);
+                showToast(t("api_key_copied"), "success");
+              }}
+              type="button"
+              className="mt-4 text-base sm:mt-0 sm:rounded-l-none">
+              <FiClipboard className="h-4 w-4 text-gray-100 ltr:mr-2 rtl:ml-2" />
+              {t("copy")}
+            </Button>
+          </Tooltip>
+        </div>
+        <div className="text-subtle mt-2 mb-5 text-sm">{t("copy_somewhere_safe")}</div>
+      </>
+    );
+  };
+
   return (
     <div className="bg-emphasis flex h-screen">
       {showContent ? (
@@ -97,81 +122,42 @@ export default function ZapierSetup(props: IZapierSetupProps) {
             </div>
             <div className="ml-2 ltr:mr-2 rtl:ml-2 md:ml-5">
               <div className="text-default">{t("setting_up_zapier")}</div>
-              {!newApiKey ? (
-                <>
-                  <div className="mt-1 text-xl">{t("generate_api_key")}:</div>
-                  {!teams ? (
-                    <Button color="secondary" onClick={() => createApiKey()} className="mt-2 mb-4">
-                      {t("generate_api_key")}
-                    </Button>
-                  ) : (
-                    <>
-                      <div className="mt-8 text-sm font-semibold">Your event types:</div>
+              <>
+                <div className="mt-1 text-xl">{t("generate_api_key")}:</div>
+                {!teams ? (
+                  <Button color="secondary" onClick={() => createApiKey()} className="mt-2 mb-4">
+                    {t("generate_api_key")}
+                  </Button>
+                ) : (
+                  <>
+                    <div className="mt-8 text-sm font-semibold">Your event types:</div>
+                    {!newApiKey ? (
                       <Button color="secondary" onClick={() => generateApiKey()} className="mt-2 mb-4">
                         {t("generate_api_key")}
                       </Button>
-                      {teams.map((team) => {
-                        return (
-                          <>
-                            <div className="mt-2 text-sm font-semibold">{team.name}:</div>
-                            {!team.apiKey ? (
-                              <Button
-                                color="secondary"
-                                onClick={() => generateApiKey(team.id)}
-                                className="mt-2 mb-4">
-                                {t("generate_api_key")}
-                              </Button>
-                            ) : (
-                              <>
-                                <div className="my-2 mt-3 flex-wrap sm:flex sm:flex-nowrap">
-                                  <code className="bg-subtle h-full w-full whitespace-pre-wrap rounded-md py-[6px] pl-2 pr-2 sm:rounded-r-none sm:pr-5">
-                                    {team.apiKey}
-                                  </code>
-                                  <Tooltip side="top" content={t("copy_to_clipboard")}>
-                                    <Button
-                                      onClick={() => {
-                                        navigator.clipboard.writeText(newApiKey);
-                                        showToast(t("api_key_copied"), "success");
-                                      }}
-                                      type="button"
-                                      className="mt-4 text-base sm:mt-0 sm:rounded-l-none">
-                                      <FiClipboard className="h-4 w-4 text-gray-100 ltr:mr-2 rtl:ml-2" />
-                                      {t("copy")}
-                                    </Button>
-                                  </Tooltip>
-                                </div>
-                                <div className="text-subtle mt-2 mb-5 text-sm">{t("copy_safe_api_key")}</div>
-                              </>
-                            )}
-                          </>
-                        );
-                      })}
-                    </>
-                  )}
-                </>
-              ) : (
-                <>
-                  <div className="mt-1 text-xl">API key for your personal event types:</div>
-                  <div className="my-2 mt-3 flex-wrap sm:flex sm:flex-nowrap">
-                    <code className="bg-subtle h-full w-full whitespace-pre-wrap rounded-md py-[6px] pl-2 pr-2 sm:rounded-r-none sm:pr-5">
-                      {newApiKey}
-                    </code>
-                    <Tooltip side="top" content={t("copy_to_clipboard")}>
-                      <Button
-                        onClick={() => {
-                          navigator.clipboard.writeText(newApiKey);
-                          showToast(t("api_key_copied"), "success");
-                        }}
-                        type="button"
-                        className="mt-4 text-base sm:mt-0 sm:rounded-l-none">
-                        <FiClipboard className="h-4 w-4 text-gray-100 ltr:mr-2 rtl:ml-2" />
-                        {t("copy")}
-                      </Button>
-                    </Tooltip>
-                  </div>
-                  <div className="text-default mt-2 mb-5 text-sm font-semibold">{t("copy_safe_api_key")}</div>
-                </>
-              )}
+                    ) : (
+                      <CopyApiKey apiKey={newApiKey} />
+                    )}
+                    {teams.map((team) => {
+                      return (
+                        <>
+                          <div className="mt-2 text-sm font-semibold">{team.name}:</div>
+                          {!team.apiKey ? (
+                            <Button
+                              color="secondary"
+                              onClick={() => generateApiKey(team.id)}
+                              className="mt-2 mb-4">
+                              {t("generate_api_key")}
+                            </Button>
+                          ) : (
+                            <CopyApiKey apiKey={team.apiKey} />
+                          )}
+                        </>
+                      );
+                    })}
+                  </>
+                )}
+              </>
 
               <ol className="mt-5 mb-5 ml-5 list-decimal ltr:mr-5 rtl:ml-5">
                 {isCalDev && (
